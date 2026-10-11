@@ -1,26 +1,12 @@
 # FARS
 
-Flat-to-Rough Adaptive Rock Segmentation (FARS) segments Martian rocks in HiRISE imagery without manual training annotations. Rule-based pseudo-labels from flat terrain supervise a segmentation network, while appearance statistics from unlabeled rough terrain guide style augmentation. Manual reference masks are used only for evaluation.
+Flat-to-Rough Adaptive Rock Segmentation (FARS) segments Martian rocks in HiRISE imagery without manual training annotations. Rule-based pseudo-labels from flat terrain supervise a segmentation network, while appearance statistics from unlabeled rough terrain guide style augmentation. Manual reference masks are used only for test.
 
 ## Implementation
 
 The current implementation uses a local ResNet-101 encoder and a DeepLabV3+ decoder with semantic and boundary prediction heads. The semantic objective combines Symmetric Cross-Entropy and Dice losses. Boundary targets combine strong Sobel edges from the original flat image with a tolerance band around the pseudo-label contour.
 
 The segmentation network receives the rough-style augmented image. Boundary supervision uses the original image restored from normalized tensors to intensities in [0, 1], before style augmentation. Augmentation preserves image geometry and the pseudo-label remains unchanged. The boundary tolerance radius and top-gradient ratio are currently set to 3 pixels and 0.2 in `utils/loss_helper.py`; the default boundary-loss weight is 0.1.
-
-## Project structure
-
-```text
-train_fars.py                         Training and rough-style augmentation
-infer.py                              PNG image inference
-exps/FARS/rock.yaml                    Default training configuration
-models/                               Encoder, decoder and prediction heads
-datasets/                             Dataset readers and augmentation helpers
-utils/loss_helper.py                  Semantic and boundary losses
-script/calibrate_rough_aug_ranges.py   Appearance statistics and parameter calibration
-traditional_methods/                  Rule-based methods and supporting scripts
-pretrained/resnet101.pth               Encoder initialization weights
-```
 
 Use `train_fars.py` as the training entry point and `exps/FARS/rock.yaml` as its configuration.
 
@@ -63,9 +49,7 @@ The script prints image counts followed by a `stage3` parameter block. It does n
 
 The original workflow is to manually copy the calibrated values into the defaults read inside `train()` in `train_fars.py`. Alternatively, add the printed `stage3` block to `exps/FARS/rock.yaml`: configuration values override those defaults. Preserve the calibrated values used for each experiment alongside its configuration.
 
-The currently configurable fields are `rough_style_prob`, `contrast_range`, `brightness_range`, `gamma_range`, `noise_std_range`, `texture_strength_range`, `shadow_prob`, `blur_prob` and `sharpen_prob`. The calibration script also prints `shadow_rx_ratio_range`, `shadow_ry_ratio_range` and `shadow_dark_factor_range`; the current training function does not read these fields. To use those outputs, manually update the ellipse radius sampling and `dark_factor` sampling in `rough_style_augment()`. Their current defaults are [0.10, 0.45] of image width, [0.03, 0.18] of image height and [0.45, 0.85], respectively.
-
-Direct rough-image reference injection is a separate option (`use_real_rough_reference`), disabled by default. Statistics-guided calibration can be used while leaving this option disabled.
+The currently configurable fields are `rough_style_prob`, `contrast_range`, `brightness_range`, `gamma_range`, `noise_std_range`, `texture_strength_range`, `shadow_prob`, `blur_prob` and `sharpen_prob`. The calibration script also prints `shadow_rx_ratio_range`, `shadow_ry_ratio_range` and `shadow_dark_factor_range`
 
 ## Training
 
@@ -77,9 +61,7 @@ python train_fars.py --config exps/FARS/rock.yaml --seed 9527
 
 Before training, check the data path and encoder initialization weights. The current default experiment configuration has two classes, 50 epochs, batch size 2, SGD learning rate 0.01, momentum 0.9, weight decay 0.0005 and polynomial decay power 0.9. Set these to the settings of the experiment being reproduced.
 
-Logs are written under the configuration directory's `log/` folder. Checkpoints are written under `checkpoints/`. `ckpt.pth` stores the latest epoch; `ckpt_best.pth` is updated on improvement of training loss, not validation IoU. The checkpoint field named `best_miou` currently stores this loss value.
-
-For ablations, a `stage3` configuration can set `use_rough_style_aug: false` or `use_boundary_loss: false`. Boundary targets always use the original flat image; the legacy `boundary_loss_use_augmented_image` option is no longer used.
+Logs are written under the configuration directory's `log/` folder. Checkpoints are written under `checkpoints/`. `ckpt.pth` stores the latest epoch; `ckpt_best.pth` is updated on improvement of training loss, not validation IoU.
 
 ## Inference
 
@@ -93,7 +75,7 @@ The script loads a checkpoint containing `best` in its filename from the experim
 
 ## Evaluation and reproducibility
 
-Use manually annotated test masks only for evaluation. A complete standalone evaluation command reproducing the manuscript's IoU-rock, F1-rock and BIoU-rock tables is not yet included in this directory. Archive the exact experiment configuration, calibrated parameters, data split, trained weights, software versions and evaluation procedure with any reported results. Existing absolute paths in supporting scripts need updating for another machine.
+Use manually annotated test masks only for evaluation. A complete standalone evaluation command reproducing the manuscript's IoU-rock, F1-rock and BIoU-rock tables is not yet included in this directory.
 
 ## Third-party code and acknowledgments
 
