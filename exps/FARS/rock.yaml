@@ -1,0 +1,75 @@
+# # # # # # # # # # # # # #
+# 1. dataset settings
+# # # # # # # # # # # # # #
+dataset: # Required.
+  type: rock
+  data_root: F:\mars_rock\unsupervised_mars_rock_detection\benchmark_methods\SSW-ROCK\training_just_test_crop256
+  train:
+    batch_size: 2
+    flip: True
+    rand_resize: [0.5, 2.0]
+    crop:
+      type: rand
+      size: [224, 224]
+  val:
+    batch_size: 1
+    crop:
+  test:
+    batch_size: 1
+    crop:
+  strong_aug:
+    num_augs: 3
+    flag_use_random_num_sampling: True
+  mean: [0.485, 0.456, 0.406]
+  std: [0.229, 0.224, 0.225]
+  ignore_label: 256
+
+# # # # # # # # # # # # # #
+# 2. training params
+# # # # # # # # # # # # # #
+trainer: # Required.
+  epochs: 50
+  optimizer:
+    type: SGD
+    kwargs:
+      lr: 0.01
+      momentum: 0.9
+      weight_decay: 0.0005
+  lr_scheduler:
+    mode: poly
+    kwargs:
+      power: 0.9
+
+# # # # # # # # # # # # # #
+# 3. output files, and loss
+# # # # # # # # # # # # # #
+saver:
+  snapshot_dir: checkpoints
+  pretrain: ''
+  use_tb: False
+
+criterion:
+  type: ce
+
+# # # # # # # # # # # # # #
+# 4. models
+# # # # # # # # # # # # # #
+net: # Required.
+  num_classes: 2
+  sync_bn: True
+  ema_decay: 0.996
+  line_loss_weight: 1
+  pseudo_loss_weight: 1
+  encoder:
+    type: models.resnet.resnet101
+    pretrain: ./pretrained/resnet101.pth
+    kwargs:
+      zero_init_residual: True
+      multi_grid: True
+      replace_stride_with_dilation: [False, False, True]  # [output_stride = 16]
+  decoder:
+    type: models.decoder.dec_deeplabv3_plus
+    kwargs:
+      inner_planes: 256
+      low_conv_planes: 48 # 256
+      dilations: [6, 12, 18]

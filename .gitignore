@@ -1,0 +1,25 @@
+# Python and IDE files
+__pycache__/
+*.py[cod]
+.idea/
+.vscode/
+.venv/
+venv/
+
+# Credentials and local environment
+.env
+.env.*
+
+# Model weights and generated experiment artifacts
+*.pth
+*.pt
+*.ckpt
+**/checkpoints/
+**/checkpoint/
+**/log/
+**/output/
+events.out.tfevents.*
+
+# Operating system files
+Thumbs.db
+.DS_Store
