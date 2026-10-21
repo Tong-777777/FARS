@@ -73,13 +73,8 @@ python infer.py --config exps/FARS/rock.yaml
 
 The script loads a checkpoint containing `best` in its filename from the experiment's `checkpoints/` folder, falling back to `ckpt.pth`. Use a folder containing only the intended best checkpoint to avoid ambiguous selection. Predictions are saved as black-background, white-rock RGB PNG masks. Supply `--config` explicitly: the script's default points to a different local project directory.
 
-## Evaluation and reproducibility
-
-Use manually annotated test masks only for evaluation. A complete standalone evaluation command reproducing the manuscript's IoU-rock, F1-rock and BIoU-rock tables is not yet included in this directory.
-
 ## Third-party code and acknowledgments
 
-- `utils/loss_helper.py` identifies code adapted from [AugSeg](https://github.com/ZhenZHAO/AugSeg).
 - GIS-BDQ scripts are based on [Boulder Identification](https://github.com/TimNagle-McNaughton/Boulder_Identification).
 - Golombek-method scripts invoke [NASA/JPL ROSCO](https://github.com/nasa-jpl/ROSCO), which must be obtained and built separately. The wrapper currently points to an external `ExportRocksPGM.exe`; document its source/build steps when distributing the workflow.
 - SSW-ROCK is implemented in `traditional_methods/SSW_rock/mian.py`.
