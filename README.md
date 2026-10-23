@@ -78,5 +78,3 @@ The script loads a checkpoint containing `best` in its filename from the experim
 - GIS-BDQ scripts are based on [Boulder Identification](https://github.com/TimNagle-McNaughton/Boulder_Identification).
 - Golombek-method scripts invoke [NASA/JPL ROSCO](https://github.com/nasa-jpl/ROSCO), which must be obtained and built separately. The wrapper currently points to an external `ExportRocksPGM.exe`; document its source/build steps when distributing the workflow.
 - SSW-ROCK is implemented in `traditional_methods/SSW_rock/mian.py`.
-
-Preserve third-party notices and document the versions and modifications actually used. This project currently has no project-level license; the presence of third-party code does not establish one for the entire repository.
